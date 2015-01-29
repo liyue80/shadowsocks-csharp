@@ -11,12 +11,19 @@ namespace Shadowsocks.Controller
 {
     public class SystemProxy
     {
-
         [DllImport("wininet.dll")]
         public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
         public const int INTERNET_OPTION_SETTINGS_CHANGED = 39;
         public const int INTERNET_OPTION_REFRESH = 37;
         static bool _settingsReturn, _refreshReturn;
+
+        /// <summary>
+        /// Force!! Do NOT change system proxy setting.
+        /// </summary>
+        public static bool SupportChangeSysProxy()
+        {
+            return false;
+        }
 
         public static void NotifyIE()
         {
@@ -28,6 +35,11 @@ namespace Shadowsocks.Controller
 
         public static void Update(Configuration config, bool forceDisable)
         {
+            if (!SupportChangeSysProxy())
+            {
+                return;
+            }
+
             bool global = config.global;
             bool enabled = config.enabled;
             if (forceDisable)

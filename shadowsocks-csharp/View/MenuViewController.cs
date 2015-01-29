@@ -139,7 +139,7 @@ namespace Shadowsocks.View
         private void LoadMenu()
         {
             this.contextMenu1 = new ContextMenu(new MenuItem[] {
-                this.enableItem = CreateMenuItem("Enable System Proxy", new EventHandler(this.EnableItem_Click)),
+                this.enableItem = CreateMenuItem("Enable SOCK5 Proxy", new EventHandler(this.EnableItem_Click)),
                 this.modeItem = CreateMenuGroup("Mode", new MenuItem[] {
                     this.PACModeItem = CreateMenuItem("PAC", new EventHandler(this.PACModeItem_Click)),
                     this.globalModeItem = CreateMenuItem("Global", new EventHandler(this.GlobalModeItem_Click))
@@ -161,6 +161,11 @@ namespace Shadowsocks.View
                 new MenuItem("-"),
                 CreateMenuItem("Quit", new EventHandler(this.Quit_Click))
             });
+
+            if (!SystemProxy.SupportChangeSysProxy())
+            {
+                this.modeItem.Enabled = false;
+            }
         }
 
         private void controller_ConfigChanged(object sender, EventArgs e)
@@ -172,7 +177,10 @@ namespace Shadowsocks.View
         private void controller_EnableStatusChanged(object sender, EventArgs e)
         {
             enableItem.Checked = controller.GetConfiguration().enabled;
-            modeItem.Enabled = enableItem.Checked;
+            if (SystemProxy.SupportChangeSysProxy())
+            {
+                modeItem.Enabled = enableItem.Checked;
+            }
         }
 
         void controller_ShareOverLANStatusChanged(object sender, EventArgs e)
@@ -232,7 +240,10 @@ namespace Shadowsocks.View
             Configuration config = controller.GetConfiguration();
             UpdateServersMenu();
             enableItem.Checked = config.enabled;
-            modeItem.Enabled = config.enabled;
+            if (SystemProxy.SupportChangeSysProxy())
+            {
+                modeItem.Enabled = config.enabled;
+            }
             globalModeItem.Checked = config.global;
             PACModeItem.Checked = !config.global;
             ShareOverLANItem.Checked = config.shareOverLan;
